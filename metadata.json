@@ -1,0 +1,15 @@
+{
+  "name": "simp-ptpd",
+  "version": "0.1.0",
+  "author": "brandonrdn",
+  "summary": "Training task",
+  "license": "Apache-2.0",
+  "source": "https://github.com/brandonrdn/pupmpd-simp-ptpd.git",
+  "project_page": "https://github.com/brandonrdn/pupmpd-simp-ptpd",
+  "issues_url": "https://github.com/brandonrdn/pupmpd-simp-ptpd/issues",
+  "dependencies": [
+    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"}
+  ],
+  "data_provider": "hiera"
+}
+
