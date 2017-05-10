@@ -42,7 +42,38 @@
 #
 # Copyright 2017 Your name here, unless otherwise noted.
 #
-class ptpd {
 
+class ptpd(
 
+  String $ptpinterface = 'eth0',
+  Boolean $ptp_master = true,
+){
+
+  package { 'ptpd':
+    ensure => 'installed',
+  }
+
+  if ($ptp_master) {
+    $ptpengine = 'masteronly'
+  } else {
+    $ptpengine = 'serveronly'
+  }
+
+  service { 'ptpd':
+    ensure     => 'running',
+    enable     => true,
+    hasstatus  => true,
+    hasrestart => true,
+    require    => Package['ptpd'],
+  }
+
+  file { '/etc/ptpd2.conf':
+    ensure  => 'file',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    content => template('ptpd/ptpd.conf.erb'),
+  }
 }
+
+
