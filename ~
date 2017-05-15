@@ -1,0 +1,69 @@
+require 'spec_helper'
+
+describe 'init' do
+  let(:title) { 'ptpd' }
+
+  it { should create_class('ptpd') }
+
+
+  describe 'ptpd' do
+
+    context 'install ptpd' do
+      it {should contain_package('ptpd')
+        .with_ensure('installed')
+      }
+    end
+  end
+
+  context 'update service' do
+    it {should contain_service('ptpd')
+      .with({
+      :ensure => 'running',
+      :enable => 'true',
+      :hasstatus => 'true',
+      :hasrestart => 'true',
+      :require => 'Package[ptpd]',
+    } )
+    }
+  end
+
+  let(:params){ {
+    :ptp_master => true, 
+    :ptpinterface => 'eth0'
+  } } 
+
+  it do 
+    is_expected.to contain_file('/etc/ptpd2.conf')\
+      .with_content(/^\s*ptpengine=masteronly$/)
+      .with_content(/^\s*ptpinterface=eth0$/)
+      .with({
+      :ensure => 'file',
+      :owner => 'root',
+      :group => 'root',
+      :mode => '0644',
+      :template => 'template(ptpd/ptpd.conf.erb)',
+    })
+
+  end
+
+  context 'with ptp_master => false' do
+    let(:params) { {
+      :ptp_master => false,
+      :ptpinterface => 'eth0'
+    } }
+
+    it do      
+      is_expected.to contain_file('/etc/ptpd2.conf')\
+        .with_content(/^\s*ptpengine=serveronly$/) 
+        .with_content(/^\s*ptpinterface=eth0$/)
+        .with({
+        :ensure => 'file',
+        :owner => 'root',
+        :group => 'root',
+        :mode => '0644',
+        :template => 'template(ptpd/ptpd.conf.erb)',
+      })
+
+    end
+  end
+end
