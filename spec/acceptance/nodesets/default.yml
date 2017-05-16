@@ -1,4 +1,12 @@
 HOSTS:
+  client:
+    roles:
+      - default
+      - master
+      - client
+    platform: el-7-x86_64
+    box: centos/7
+    hypervisor: vagrant
   el7:
     roles:
       - server

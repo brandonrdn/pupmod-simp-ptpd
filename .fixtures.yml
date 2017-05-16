@@ -1,4 +1,3 @@
-
 ---
 fixtures:
   repositories:
@@ -27,4 +26,4 @@ fixtures:
     tcpwrappers:
       repo: https://github.com/simp/pupmod-simp-tcpwrappers
   symlinks:
-    rsyslog: "#{source_dir}"
+    ptpd: "#{source_dir}"
