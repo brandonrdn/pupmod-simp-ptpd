@@ -56,6 +56,7 @@ GEM
       serverspec (~> 2)
       specinfra (~> 2)
     builder (3.2.3)
+    byebug (9.0.6)
     coderay (1.1.1)
     colored (1.2)
     cri (2.6.1)
@@ -288,6 +289,9 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    pry-byebug (3.4.2)
+      byebug (~> 9.0)
+      pry (~> 0.10)
     pry-doc (0.10.0)
       pry (~> 0.9)
       yard (~> 0.9)
@@ -466,6 +470,7 @@ DEPENDENCIES
   listen (~> 3.0.6)
   metadata-json-lint
   pry
+  pry-byebug
   pry-doc
   puppet (~> 4)
   puppet-blacksmith

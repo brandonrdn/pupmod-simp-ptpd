@@ -2,7 +2,7 @@ require 'spec_helper_acceptance'
 
 test_name 'ptpd test'
 
-describe 'ptpd test' do
+describe 'ptpd el7 test' do
   servers = hosts_with_role(hosts, 'server')
   servers.each do |server|
     let(:manifest) {
@@ -17,62 +17,172 @@ describe 'ptpd test' do
       EOS
     }
 
-    context 'normal parameters(server)' do
+    context 'normal parameters(el7)' do
+
       it 'should work with no errors' do
         apply_manifest_on(server, manifest, :catch_failures => true)
       end
+
       it 'should be idempotent' do
         apply_manifest_on(server, manifest, :catch_changes => true)
       end
 
-      describe package('ptpd') do
-        it { is_expected.to be_installed }
+      it 'should be installed' do
+        result = on(server, "rpm -q ptpd")
+        expect(result.exit_code).to be(0)
+      end 
+
+      it 'should be running' do
+        result = on(server, '/bin/sh -c "service ptpd2 status | grep active"')
+        expect(result.stdout).to include("Active: active (running)")
       end
 
-      describe service('ptpd') do
-        it { is_expected.to be_running }
-        it { is_expected.to be_enabled }
+      it 'should be enabled' do
+        result = on(server, '/bin/sh -c "service ptpd2 status | grep loaded"')
+        expect(result.stdout).to include("enabled")
       end
 
-      describe port(319) do
-        it { should be_listening }
+      it 'should be listening on ports 319 and 320' do
+        result = on(server, "netstat -plnu")
+        expect(result.stdout).to include("319", "320")
       end
 
-      describe port(320) do
-        it { should be_listening }
-
-      end
-      describe file('/etc/ptpd2.conf') do
-        it { should contain 'ptpengine:preset=masteronly' }
+      it 'should be a master' do
+        result = on(server, "cat /etc/ptpd2.conf | grep ptpengine:preset")
+        expect(result.stdout).to include("ptpengine:preset=masteronly")
       end
     end
-  end
-  context 'changed parameters(client)' do
-    it 'should work with no errors' do
-      apply_manifest_on(server, manifest_with_rule, :catch_failures => true)
-    end
-    it 'should be idempotent' do
-      apply_manifest_on(server, manifest_with_rule, :catch_changes => true)
-    end
 
-    describe package('ptpd') do
-      it { is_expected.to be_installed }
-    end
+    context 'changed parameters(el7)' do
 
-    describe service('ptpd') do
-      it {is_expected.to be_running }
-      it {is_expected.to be_enabled }
-    end
+      it 'should work with no errors' do
+        apply_manifest_on(server, manifest_with_rule, :catch_failures => true)
+      end
 
-    describe port(319) do
-      it { should be_listening }
-    end
-    describe port(320) do
-      it { should be_listening }
+      it 'should be idempotent' do
+        apply_manifest_on(server, manifest_with_rule, :catch_changes => true)
+      end
 
-      describe file ('/etc/ptpd2/conf') do
-        it { should contain 'ptpengine:preset=serveronly' }
+      it 'should be installed' do
+        result = on(server, "rpm -q ptpd")
+        expect(result.exit_code).to be(0)  
+      end
+
+      it 'should be running' do
+        result = on(server, '/bin/sh -c "service ptpd2 status | grep active"')
+        expect(result.stdout).to include("Active: active (running)") 
+      end
+
+      it 'should be enabled' do
+        result = on(server, '/bin/sh -c "service ptpd2 status | grep loaded"')
+        expect(result.stdout).to include("enabled")
+      end
+
+      it 'should be listening on ports 319 and 320' do
+        result = on(server, "netstat -plnu")
+        expect(result.stdout).to include("319","320")
+      end
+
+      it 'should be a server' do
+        result = on(server, "cat /etc/ptpd2.conf | grep ptpengine:preset")
+        expect(result.stdout).to include("ptpengine:preset=serveronly")
       end
     end
   end
 end
+
+
+describe 'ptpd el6 test' do
+  servers = hosts_with_role(hosts, 'server2')
+  servers.each do |server|
+    let(:manifest) {
+      <<-EOS
+      class {'ptpd':}
+      EOS
+    }
+
+    let(:manifest_with_rule) {
+      <<-EOS
+      class { 'ptpd': ptp_master => false }
+      EOS
+    }
+
+    context 'normal parameters(el6)' do
+
+      it 'should work with no errors' do
+        apply_manifest_on(server, manifest, :catch_failures => true)
+      end
+
+      it 'should be idempotent' do
+        apply_manifest_on(server, manifest, :catch_changes => true)
+      end
+
+      it 'should be installed' do
+        result = on(server, "rpm -q ptpd")
+        expect(result.exit_code).to be(0)
+      end 
+
+      it 'should be running' do
+        result = on(server, "service ptpd2 status | grep running")
+        expect(result.stdout).to include("running")
+      end
+
+      it 'should be enabled' do
+        result = on(server, "chkconfig --list ptpd2")
+        expect(result.stdout).to include("3:on")
+      end
+
+      it 'should be listening on ports 319 and 320' do
+        result = on(server, "netstat -plnu")
+        expect(result.stdout).to include("319", "320")
+      end
+
+      it 'should be a master' do
+        result = on(server, "cat /etc/ptpd2.conf | grep ptpengine:preset")
+        expect(result.stdout).to include("ptpengine:preset=masteronly")
+      end
+    end
+
+    context 'changed parameters(el6)' do
+
+      it 'should work with no errors' do
+        apply_manifest_on(server, manifest_with_rule, :catch_failures => true)
+      end
+
+      it 'should be idempotent' do
+        apply_manifest_on(server, manifest_with_rule, :catch_changes => true)
+      end
+
+      it 'should be installed' do
+        result = on(server, "rpm -q ptpd")
+        expect(result.exit_code).to be(0)  
+      end
+
+      it 'should be running' do
+        result = on(server, "service ptpd2 status | grep running")
+        expect(result.stdout).to include("running") 
+      end
+
+      it 'should be enabled' do
+        result = on(server, "chkconfig --list ptpd2")
+        expect(result.stdout).to include("3:on")
+      end
+
+      it 'should be listening on ports 319 and 320' do
+        result = on(server, "netstat -plnu")
+        expect(result.stdout).to include("319","320")
+      end
+
+      it 'should be a server' do
+        result = on(server, "cat /etc/ptpd2.conf | grep ptpengine:preset")
+        expect(result.stdout).to include("ptpengine:preset=serveronly")
+      end
+    end
+  end
+end
+
+
+
+
+
+
