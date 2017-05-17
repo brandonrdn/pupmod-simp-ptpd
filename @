@@ -51,9 +51,9 @@ class ptpd(
 ){
 
   exec { 'install_epel':
-    command => 'sudo yum -y --enablerepo=extras install epel-release',
+    command => 'sudo yum --enablerepo=extras install epel-release',
     path    => $::path,
-    unless  => 'sudo yum repolist | grep epel',
+    unless  => 'sudo yum repolist | grep epel'
     before  => Package['ptpd'],
   }
   package { 'ptpd':
@@ -66,7 +66,7 @@ class ptpd(
     $ptpengine = 'serveronly'
   }
 
-  service { 'ptpd2':
+  service { 'ptpd':
     ensure     => 'running',
     enable     => true,
     hasstatus  => true,
@@ -80,8 +80,6 @@ class ptpd(
     group   => 'root',
     mode    => '0644',
     content => template('ptpd/ptpd.conf.erb'),
-    before  => Service['ptpd2'],
-    require => Package['ptpd'],
   }
 }
 
