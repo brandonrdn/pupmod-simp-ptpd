@@ -9,7 +9,7 @@ HOSTS:
   el6:
     roles:
       - default
-      - server2
+      - server
     masterless: true
     platform:   el-6-x86_64
     box:        centos/6

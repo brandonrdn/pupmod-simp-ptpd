@@ -48,11 +48,12 @@ class ptpd(
 
   String $ptpinterface = 'eth0',
   Boolean $ptp_master = true,
+  $path = '/bin/:/sbin/:/usr/bin/:/usr/sbin/',
 ){
 
   exec { 'install_epel':
     command => 'sudo yum -y --enablerepo=extras install epel-release',
-    path    => $::path,
+    path    => $path,
     unless  => 'sudo yum repolist | grep epel',
     before  => Package['ptpd'],
   }

@@ -2,14 +2,16 @@ require 'spec_helper'
 
 describe 'ptpd' do
   let(:title) { 'ptpd' }
-
+  let(:params) { { 'path' => {
+   'value' => '/bin/:/sbin/:/usr/bin/:/usr/sbin/' }
+  }}
   it { should create_class('ptpd') }
 
   it {should contain_package('ptpd')
     .with_ensure('installed')
   }
 
-  it {should contain_service('ptpd')
+  it {should contain_service('ptpd2')
     .with({
     :ensure => 'running',
     :enable => 'true',
@@ -27,8 +29,8 @@ describe 'ptpd' do
 
     it do 
       is_expected.to contain_file('/etc/ptpd2.conf')\
-        .with_content(/^\s*ptpengine::preset=masteronly$/)
-        .with_content(/^\s*ptpengine::interface=eth0$/)
+        .with_content(/ptpengine:preset=masteronly/)
+        .with_content(/ptpengine:interface=eth0/)
         .with({
         :ensure => 'file',
         :owner => 'root',
@@ -46,8 +48,8 @@ describe 'ptpd' do
 
     it do      
       is_expected.to contain_file('/etc/ptpd2.conf')\
-        .with_content(/^\s*ptpengine::preset=serveronly$/) 
-        .with_content(/^\s*ptpengine::interface=eth0$/)
+        .with_content(/ptpengine:preset=serveronly/) 
+        .with_content(/ptpengine:interface=eth0/)
         .with({
         :ensure => 'file',
         :owner => 'root',
