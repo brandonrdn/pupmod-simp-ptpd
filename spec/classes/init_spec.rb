@@ -2,9 +2,10 @@ require 'spec_helper'
 
 describe 'ptpd' do
   let(:title) { 'ptpd' }
-  let(:params) { { 'path' => {
-   'value' => '/bin/:/sbin/:/usr/bin/:/usr/sbin/' }
-  }}
+  let(:facts){ {
+    :path => '/bin/:/sbin/:/usr/bin/:/usr/sbin/',
+  } }
+
   it { should create_class('ptpd') }
 
   it {should contain_package('ptpd')
