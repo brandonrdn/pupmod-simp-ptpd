@@ -43,14 +43,21 @@
 # Copyright 2017 Your name here, unless otherwise noted.
 #
 
+
 class ptpd(
 
   String $ptpinterface = 'eth0',
   Boolean $ptp_master = true,
 ){
 
+  exec { 'install_epel':
+    command => 'sudo yum -y --enablerepo=extras install epel-release',
+    path    => $::path,
+    unless  => 'sudo yum repolist | grep epel',
+    before  => Package['ptpd'],
+  }
   package { 'ptpd':
-    ensure => 'installed',
+    ensure  => 'installed',
   }
 
   if ($ptp_master) {
@@ -59,7 +66,7 @@ class ptpd(
     $ptpengine = 'serveronly'
   }
 
-  service { 'ptpd':
+  service { 'ptpd2':
     ensure     => 'running',
     enable     => true,
     hasstatus  => true,
@@ -73,6 +80,8 @@ class ptpd(
     group   => 'root',
     mode    => '0644',
     content => template('ptpd/ptpd.conf.erb'),
+    before  => Service['ptpd2'],
+    require => Package['ptpd'],
   }
 }
 
